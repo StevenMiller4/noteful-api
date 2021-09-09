@@ -39,7 +39,7 @@ describe(`Folders service object`, function() {
 
     context(`Given 'noteful_folders' has data`, () => {
         
-        before(() => {
+        beforeEach(() => {
             return db
                 .into('noteful_folders')
                 .insert(testFolders)
@@ -49,6 +49,45 @@ describe(`Folders service object`, function() {
             return FoldersService.getAllFolders(db)
                 .then(actual => {
                     expect(actual).to.eql(testFolders)
+                })
+        })
+
+        it(`getById() resolves a folder by id from 'noteful_folders' table`, () => {
+            const thirdId = 3
+            const thirdTestFolder = testFolders[thirdId - 1]
+            return FoldersService.getById(db, thirdId)
+                .then(actual => {
+                    expect(actual).to.eql({
+                        id: thirdId,
+                        name: thirdTestFolder.name,
+                        date_added: thirdTestFolder.date_added,
+                    })
+                })
+        })
+
+        it(`deleteFolder() removes an article by id from 'noteful_folders' table`, () => {
+            const folderId = 3
+            return FoldersService.deleteFolder(db, folderId)
+                .then(() => FoldersService.getAllFolders(db))
+                .then(allFolders => {
+                    const expected = testFolders.filter(folder => folder.id !== folderId)
+                    expect(allFolders).to.eql(expected)
+                })
+        })
+
+        it(`updateFolder() updates a folder from 'noteful_folders' table`, () => {
+            const idOfFolderToUpdate = 3
+            const newFolderData = {
+                name: 'updated name',
+                date_added: new Date(),
+            }
+            return FoldersService.updateFolder(db, idOfFolderToUpdate, newFolderData)
+                .then(() => FoldersService.getById(db, idOfFolderToUpdate))
+                .then(folder => {
+                    expect(folder).to.eql({
+                        id: idOfFolderToUpdate,
+                        ...newFolderData,
+                    })
                 })
         })
 

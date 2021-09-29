@@ -8,35 +8,25 @@ const jsonParser = express.json()
 notesRouter
     .route('/')
     .get((req, res, next) => {
-        NotesService.getAllNotes(
-            req.app.get('db')
-        )
+        const knexInstance = req.app.get('db')
+        NotesService.getAllNotes(knexInstance)
             .then(notes => {
                 res.json(notes)
             })
             .catch(next)
     })
     .post(jsonParser, (req, res, next) => {
-        const { name, content, folderId } = req.body
-        const newNote = { name, content, folderId }
+        const { name, content, folder_id, date_modified } = req.body
+        const newNote = { name, content, folder_id }
 
-        if (!name) {
-            return res.status(400).json({
-                error: { message: `Missing 'name' in request body` }
-            })
-        }
-        
-        if (!content) {
-            return res.status(400).json({
-                error: { message: `Missing 'content' in request body` }
-            })
-        }
+        for (const [key, value] of Object.entries(newNote))
+            if (value == null) {
+                return res.status(400).json({
+                    error: { message: `Missing '${key}' in request` }
+                })
+            }
 
-        if (!folderId) {
-            return res.status(400).json({
-                error: { message: `Missing 'folderId' in request body` }
-            })
-        }
+        newNote.date_modified = date_modified;
 
         NotesService.insertNote(
             req.app.get('db'),
@@ -45,7 +35,7 @@ notesRouter
             .then(note => {
                 res
                     .status(201)
-                    .location(path.posix.join(req.originalUrl, `${note.id}`))
+                    .location(path.posix.join(req.originalUrl, `/${note.id}`))
                     .json(note)
             })
             .catch(next)
@@ -70,33 +60,27 @@ notesRouter
             .catch(next)
     })
     .get((req, res, next) => {
-        res.json({
-            id: res.note.id,
-            name: res.note.name,
-            content: res.note.content,
-            date_added: res.note.date_added,
-            folderId: res.note.folderId,
-        })
+        res.json(note)
     })
     .delete((req, res, next) => {
         NotesService.deleteFolder(
             req.app.get('db'),
             req.params.note_id
         )
-            .then(() => {
+            .then(numRowsAffected => {
                 res.status(204).end()
             })
             .catch(next)
     })
     .patch(jsonParser, (req, res, next) => {
-        const { name, content, folderId } = req.body
-        const noteToUpdate = { name, content, folderId }
+        const { name, content, date_modified } = req.body
+        const noteToUpdate = { name, content, date_modified }
 
         const numberOfValues = Object.values(noteToUpdate).filter(Boolean).length
         if (numberOfValues === 0) {
             return res.status(400).json({
                 error: {
-                    message: `Request body must contain 'name', 'content', or 'folderId'`
+                    message: `Request body must contain 'name', 'content', or 'folder_id'`
                 }
             })
         }

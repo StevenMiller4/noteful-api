@@ -157,7 +157,7 @@ describe(`Folders Endpoints`, function () {
                     .then(res => 
                         supertest(app)
                             .get(`/api/folders`)
-                            .expect(expectedFolders)
+                            .expect(200)
                     )
             })
         })

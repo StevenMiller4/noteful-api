@@ -33,18 +33,18 @@ foldersRouter
             .then(folder => {
                 res
                     .status(201)
-                    .location(path.posix.join(req.originalUrl, `${folder.id}`))
+                    .location(path.posix.join(req.originalUrl, `${folderId}`))
                     .json(folder)
             })
             .catch(next)
     })
 
 foldersRouter
-    .route('/:folder_id')
+    .route('/:folderId')
     .all((req, res, next) => {
         FoldersService.getById(
             req.app.get('db'),
-            req.params.folder_id
+            req.params.folderId
         )
             .then(folder => {
                 if (!folder) {
@@ -67,7 +67,7 @@ foldersRouter
     .delete((req, res, next) => {
         FoldersService.deleteFolder(
             req.app.get('db'),
-            req.params.folder_id
+            req.params.folderId
         )
             .then(() => {
                 res.status(204).end()
@@ -89,7 +89,7 @@ foldersRouter
 
         FoldersService.updateFolder(
             req.app.get('db'),
-            req.params.folder_id,
+            req.params.folderId,
             folderToUpdate
         )
             .then(numRowsAffected => {

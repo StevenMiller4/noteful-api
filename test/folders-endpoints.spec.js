@@ -54,7 +54,7 @@ describe(`Folders Endpoints`, function () {
     
     })
 
-    describe(`GET /api/folders/:folder_id`, () => {
+    describe(`GET /api/folders/:folderId`, () => {
 
         context(`Given no folders`, () => {
 
@@ -126,7 +126,7 @@ describe(`Folders Endpoints`, function () {
 
     })
 
-    describe(`DELETE /api/folders/:folder_id`, () => {
+    describe(`DELETE /api/folders/:folderId`, () => {
 
         context(`Given no folders`, () => {
 
@@ -164,7 +164,7 @@ describe(`Folders Endpoints`, function () {
 
     })
 
-    describe(`PATCH /api/folders/:folder_id`, () => {
+    describe(`PATCH /api/folders/:folderId`, () => {
 
         context(`Given no folders`, () => {
 
@@ -210,7 +210,7 @@ describe(`Folders Endpoints`, function () {
             it(`responds with 400 when no fields are supplied`, () => {
                 const idToUpdate = 2
                 return supertest(app)
-                    .patch(`/api/folder/${idToUpdate}`)
+                    .patch(`/api/folders/${idToUpdate}`)
                     .send({ irrelvantField: 'foo' })
                     .expect(400, {
                         error: {

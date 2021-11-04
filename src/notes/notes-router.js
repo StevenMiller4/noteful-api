@@ -9,6 +9,7 @@ notesRouter
     .route('/')
     .get((req, res, next) => {
         const knexInstance = req.app.get('db')
+        console.log('hello')
         NotesService.getAllNotes(knexInstance)
             .then(notes => {
                 res.json(notes)
@@ -16,8 +17,9 @@ notesRouter
             .catch(next)
     })
     .post(jsonParser, (req, res, next) => {
-        const { name, content, folder_id, date_modified } = req.body
+        const { name, content, folder_id } = req.body
         const newNote = { name, content, folder_id }
+        console.log(req.body)
 
         for (const [key, value] of Object.entries(newNote))
             if (value == null) {
@@ -26,8 +28,9 @@ notesRouter
                 })
             }
 
-        newNote.date_modified = date_modified;
-
+        newNote.folder_id = folder_id;
+        newNote.date_modified = new Date();
+        
         NotesService.insertNote(
             req.app.get('db'),
             newNote
@@ -35,7 +38,7 @@ notesRouter
             .then(note => {
                 res
                     .status(201)
-                    .location(path.posix.join(req.originalUrl, `/${note.id}`))
+                    .location(path.posix.join(req.originalUrl, `${note.id}`))
                     .json(note)
             })
             .catch(next)
@@ -63,13 +66,13 @@ notesRouter
         res.json(note)
     })
     .delete((req, res, next) => {
-        NotesService.deleteFolder(
+        NotesService.deleteNote(
             req.app.get('db'),
             req.params.noteId
         )
-            .then(numRowsAffected => {
+            .then(
                 res.status(204).end()
-            })
+            )
             .catch(next)
     })
     .patch(jsonParser, (req, res, next) => {
@@ -85,7 +88,7 @@ notesRouter
             })
         }
 
-        NotesService.updateFolder(
+        NotesService.updateNote(
             req.app.get('db'),
             req.params.noteId,
             noteToUpdate

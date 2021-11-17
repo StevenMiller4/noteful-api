@@ -9,7 +9,6 @@ notesRouter
     .route('/')
     .get((req, res, next) => {
         const knexInstance = req.app.get('db')
-        console.log('hello')
         NotesService.getAllNotes(knexInstance)
             .then(notes => {
                 res.json(notes)
@@ -19,7 +18,6 @@ notesRouter
     .post(jsonParser, (req, res, next) => {
         const { name, content, folder_id } = req.body
         const newNote = { name, content, folder_id }
-        console.log(req.body)
 
         for (const [key, value] of Object.entries(newNote))
             if (value == null) {

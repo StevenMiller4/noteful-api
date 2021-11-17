@@ -21,10 +21,6 @@ app.use('/api/folders', foldersRouter)
 
 app.use('/api/notes', notesRouter)
 
-app.get('/', (req, res) => {
-    res.send('Hello, world!')
-})
-
 app.use(function errorHandler(error, req, res, next) {
     let response
     if (NODE_ENV === 'production') {
